@@ -60,6 +60,7 @@ def main():
     logging.info('Using device: %s', device)
 
     # configure policy
+    print('configure policy...')
     policy = policy_factory[args.policy]()
     if not policy.trainable:
         parser.error('Policy has to be trainable')
@@ -71,6 +72,7 @@ def main():
     policy.set_device(device)
 
     # configure environment
+    print('configure environment...')
     env_config = configparser.RawConfigParser()
     env_config.read(args.env_config)
     env = gym.make('CrowdSim-v0')
@@ -79,6 +81,7 @@ def main():
     env.set_robot(robot)
 
     # read training parameters
+    print('read training parameters...')
     if args.train_config is None:
         parser.error('Train config has to be specified for a trainable network')
     train_config = configparser.RawConfigParser()
@@ -96,6 +99,7 @@ def main():
     checkpoint_interval = train_config.getint('train', 'checkpoint_interval')
 
     # configure trainer and explorer
+    print('configure trainer and explorer...')
     memory = ReplayMemory(capacity)
     model = policy.get_model()
     batch_size = train_config.getint('trainer', 'batch_size')
@@ -103,6 +107,7 @@ def main():
     explorer = Explorer(env, robot, device, memory, policy.gamma, target_policy=policy)
 
     # imitation learning
+    print('imitation learning...')
     if args.resume:
         if not os.path.exists(rl_weight_file):
             logging.error('RL weights does not exist')
@@ -133,7 +138,8 @@ def main():
         logging.info('Experience set size: %d/%d', len(memory), memory.capacity)
     explorer.update_target_model(model)
 
-    # reinforcement learning
+    # reinforcement ps
+    print('start reinforcement learning...')
     policy.set_env(env)
     robot.set_policy(policy)
     robot.print_info()
@@ -170,6 +176,7 @@ def main():
             torch.save(model.state_dict(), rl_weight_file)
 
     # final test
+    print('testing...')
     explorer.run_k_episodes(env.case_size['test'], 'test', episode=episode)
 
 
