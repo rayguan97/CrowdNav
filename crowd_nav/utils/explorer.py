@@ -77,17 +77,23 @@ class Explorer(object):
         avg_nav_time = sum(success_times) / len(success_times) if success_times else self.env.time_limit
 
         extra_info = '' if episode is None else 'in episode {} '.format(episode)
+        total_reward = average(cumulative_rewards)
         logging.info('{:<5} {}has success rate: {:.2f}, collision rate: {:.2f}, nav time: {:.2f}, total reward: {:.4f}'.
-                     format(phase.upper(), extra_info, success_rate, collision_rate, avg_nav_time,
-                            average(cumulative_rewards)))
+                     format(phase.upper(), extra_info, success_rate, collision_rate, avg_nav_time, 
+                        total_reward))
         if phase in ['val', 'test']:
             total_time = sum(success_times + collision_times + timeout_times) * self.robot.time_step
+            freq_danger = too_close / total_time
+            ave_min_dist = average(min_dist)
             logging.info('Frequency of being in danger: %.2f and average min separate distance in danger: %.2f',
-                         too_close / total_time, average(min_dist))
+                         freq_danger, ave_min_dist)
 
         if print_failure:
             logging.info('Collision cases: ' + ' '.join([str(x) for x in collision_cases]))
             logging.info('Timeout cases: ' + ' '.join([str(x) for x in timeout_cases]))
+
+        if phase in ['val', 'test']:
+            return success_rate, collision_rate, avg_nav_time, total_reward, freq_danger, ave_min_dist
 
     def update_memory(self, states, actions, rewards, imitation_learning=False):
         if self.memory is None or self.gamma is None:

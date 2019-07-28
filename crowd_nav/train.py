@@ -14,7 +14,7 @@ from crowd_nav.utils.explorer import Explorer
 from crowd_nav.policy.policy_factory import policy_factory
 
 
-def main():
+def main(raw_args=None):
     parser = argparse.ArgumentParser('Parse configuration file')
     parser.add_argument('--env_config', type=str, default='configs/env.config')
     parser.add_argument('--policy', type=str, default='cadrl')
@@ -22,27 +22,53 @@ def main():
     parser.add_argument('--train_config', type=str, default='configs/train.config')
     parser.add_argument('--output_dir', type=str, default='data/output')
     parser.add_argument('--weights', type=str)
+    parser.add_argument('--overwrite', default=True, action='store_false')
     parser.add_argument('--resume', default=False, action='store_true')
     parser.add_argument('--gpu', default=False, action='store_true')
     parser.add_argument('--debug', default=False, action='store_true')
-    args = parser.parse_args()
+    parser.add_argument('--time_step', type=float, default=0)
+    args = parser.parse_args(raw_args)
 
     # configure paths
     make_new_dir = True
     if os.path.exists(args.output_dir):
-        key = input('Output directory already exists! Overwrite the folder? (y/n)')
-        if key == 'y' and not args.resume:
+        # key = input('Output directory already exists! Overwrite the folder? (y/n)')
+        if args.overwrite and not args.resume:
             shutil.rmtree(args.output_dir)
         else:
             make_new_dir = False
-            args.env_config = os.path.join(args.output_dir, os.path.basename(args.env_config))
             args.policy_config = os.path.join(args.output_dir, os.path.basename(args.policy_config))
+            args.env_config = os.path.join(args.output_dir, os.path.basename(args.env_config))
             args.train_config = os.path.join(args.output_dir, os.path.basename(args.train_config))
+
+
+
+    policy_config = configparser.RawConfigParser()
+    policy_config.read(args.policy_config)
+    env_config = configparser.RawConfigParser()
+    env_config.read(args.env_config)
+    train_config = configparser.RawConfigParser()
+    train_config.read(args.train_config)
+
+
+
+    # change parameters if specified
+    if args.time_step != 0:
+        env_config.set('env', 'time_step', str(args.time_step))
+
+
     if make_new_dir:
         os.makedirs(args.output_dir)
-        shutil.copy(args.env_config, args.output_dir)
-        shutil.copy(args.policy_config, args.output_dir)
-        shutil.copy(args.train_config, args.output_dir)
+
+        with open(os.path.join(args.output_dir, os.path.basename(args.policy_config)), 'w+') as f:
+            policy_config.write(f)
+
+        with open(os.path.join(args.output_dir, os.path.basename(args.env_config)), 'w+') as f:
+            env_config.write(f)
+
+        with open(os.path.join(args.output_dir, os.path.basename(args.train_config)), 'w+') as f:
+            train_config.write(f)
+
     log_file = os.path.join(args.output_dir, 'output.log')
     il_weight_file = os.path.join(args.output_dir, 'il_model.pth')
     rl_weight_file = os.path.join(args.output_dir, 'rl_model.pth')
@@ -55,7 +81,7 @@ def main():
     logging.basicConfig(level=level, handlers=[stdout_handler, file_handler],
                         format='%(asctime)s, %(levelname)s: %(message)s', datefmt="%Y-%m-%d %H:%M:%S")
     repo = git.Repo(search_parent_directories=True)
-    logging.info('Current git head hash code: %s'.format(repo.head.object.hexsha))
+    logging.info('Current git head hash code: {}'.format(repo.head.object.hexsha))
     device = torch.device("cuda:0" if torch.cuda.is_available() and args.gpu else "cpu")
     logging.info('Using device: %s', device)
 
@@ -66,15 +92,13 @@ def main():
         parser.error('Policy has to be trainable')
     if args.policy_config is None:
         parser.error('Policy config has to be specified for a trainable network')
-    policy_config = configparser.RawConfigParser()
-    policy_config.read(args.policy_config)
+
     policy.configure(policy_config)
     policy.set_device(device)
 
     # configure environment
     print('configure environment...')
-    env_config = configparser.RawConfigParser()
-    env_config.read(args.env_config)
+
     env = gym.make('CrowdSim-v0')
     env.configure(env_config)
     robot = Robot(env_config, 'robot')
@@ -84,8 +108,8 @@ def main():
     print('read training parameters...')
     if args.train_config is None:
         parser.error('Train config has to be specified for a trainable network')
-    train_config = configparser.RawConfigParser()
-    train_config.read(args.train_config)
+
+
     rl_learning_rate = train_config.getfloat('train', 'rl_learning_rate')
     train_batches = train_config.getint('train', 'train_batches')
     train_episodes = train_config.getint('train', 'train_episodes')
@@ -151,6 +175,7 @@ def main():
         logging.info('Experience set size: %d/%d', len(memory), memory.capacity)
     episode = 0
     while episode < train_episodes:
+        print("progress : {} / {}".format(str(episode), str(train_episodes)))
         if args.resume:
             epsilon = epsilon_end
         else:
@@ -177,7 +202,7 @@ def main():
 
     # final test
     print('testing...')
-    explorer.run_k_episodes(env.case_size['test'], 'test', episode=episode)
+    return list(explorer.run_k_episodes(env.case_size['test'], 'test', episode=episode)) + [args.time_step]
 
 
 if __name__ == '__main__':
