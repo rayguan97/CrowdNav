@@ -215,7 +215,7 @@ def main(raw_args=None):
     ret = list(explorer.run_k_episodes(env.case_size['test'], 'test', episode=episode)) + [ave_loss, end_time - start_time, args.time_step]
     print('testing finished')
 
-    return rets
+    return ret
 
 if __name__ == '__main__':
     main()

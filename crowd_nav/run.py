@@ -34,8 +34,8 @@ if __name__ == '__main__':
 
 	args.output_folder = os.path.join(args.output_dir, args.output_folder+'{:.2f}')
 
-	# steps = np.arange(0.1, 1, 0.05)
-	steps = [0.1, 0.2, 0.3]
+	steps = np.arange(0.1, 1, 0.05)
+	# steps = [0.1, 0.2, 0.3]
 	# steps = [0.1]
 
 	if not os.path.exists(args.output_dir):
@@ -43,23 +43,36 @@ if __name__ == '__main__':
 
 
 	if not args.visual_only:
+
+		names = ["Time_step", "Success_rate", "Collision_rate", "Average_navigation_time", "Total_reward", "Frequency_of_in_danger", "Average_min_seperating_dist_in_danger", "Average_loss", "Training_time (seconds)"]
+
+
 		if args.muti:
 			p = Pool(4)
 			cmds = list(map(mkcmd, steps, repeat(args.output_folder)))
 			result = p.map(trainMain, cmds)
+
+			with open(os.path.join(args.output_dir, args.vis_txt_dir), 'w+') as f:
+				f.write(", ".join(names) + "\n")
+				for lst in result:
+					f.write("{:.2}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.2f}\n".format(lst[8], lst[0], lst[1], lst[2], lst[3], lst[4], lst[5], lst[6], lst[7]))
+
+				f.close()
+
 		else:
 			result = []
-			for step in steps:
-				result.append(trainMain(mkcmd(step, args.output_folder)))
 
-		names = ["Time_step", "Success_rate", "Collision_rate", "Average_navigation_time", "Total_reward", "Frequency_of_in_danger", "Average_min_seperating_dist_in_danger", "Average_loss", "Training_time"]
+			with open(os.path.join(args.output_dir, args.vis_txt_dir), 'w+') as f:
+				f.write(", ".join(names) + "\n")
 
-		with open(os.path.join(args.output_dir, args.vis_txt_dir), 'w+') as f:
-			f.write(", ".join(names) + "\n")
-			for i, lst in enumerate(result):
-				f.write("{:.2}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.2f}\n".format(lst[8], lst[0], lst[1], lst[2], lst[3], lst[4], lst[5], lst[6], lst[7]))
+				for step in steps:
+					print('Running time_step = {}'.format(step))
+					lst = trainMain(mkcmd(step, args.output_folder))
+					result.append(lst)
+					f.write("{:.2}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.2f}\n".format(lst[8], lst[0], lst[1], lst[2], lst[3], lst[4], lst[5], lst[6], lst[7]))
+				
+				f.close()
 
-			f.close()
 
 	if not os.path.exists(os.path.join(args.output_dir, args.vis_txt_dir)):
 		print("Could not find {} file.".format(args.vis_txt_dir))
