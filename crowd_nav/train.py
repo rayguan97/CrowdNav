@@ -192,7 +192,7 @@ def main(raw_args=None):
         robot.policy.set_epsilon(epsilon)
 
         # evaluate the model
-        if episode % evaluation_interval == 0:
+        if episode % evaluation_interval == 0 and episode != 0:
         	print("running {} epochs for validation...".format(env.case_size['val']))
         	explorer.run_k_episodes(env.case_size['val'], 'val', episode=episode)
 
