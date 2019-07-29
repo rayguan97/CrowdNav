@@ -30,7 +30,7 @@ def visualize(data_dir, figure_dir, file_name='visualization.txt'):
 		title = x_axis + ' v.s. ' + y_axis
 
 		fig = plt.figure(title)
-		plt.plot(data[x_axis], data[y_axis], linestyle='-',label='')
+		plt.plot(data[x_axis], data[y_axis], label='')
 		plt.xlabel(x_axis)
 		plt.ylabel(y_axis)
 		plt.title(title)

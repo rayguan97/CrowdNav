@@ -57,7 +57,7 @@ if __name__ == '__main__':
 		with open(os.path.join(args.output_dir, args.vis_txt_dir), 'w+') as f:
 			f.write(", ".join(names) + "\n")
 			for i, lst in enumerate(result):
-				f.write("{}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}\n".format(lst[6], lst[0], lst[1], lst[2], lst[3], lst[4], lst[5]))
+				f.write("{:.2}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}\n".format(lst[6], lst[0], lst[1], lst[2], lst[3], lst[4], lst[5]))
 
 			f.close()
 
