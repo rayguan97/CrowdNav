@@ -66,14 +66,19 @@ if __name__ == '__main__':
 
 			with open(os.path.join(args.output_dir, args.vis_txt_dir), args.mode) as f:
 				if not args.append:
+					print("Here")
+					print(args.mode)
+					print(", ".join(names) + "\n")
 					f.write(", ".join(names) + "\n")
+					f.flush()
 
 				for step in steps:
 					print('Running time_step = {}'.format(step))
 					lst = trainMain(mkcmd(step, args.output_folder))
 					result.append(lst)
 					f.write("{:.2}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.2f}\n".format(lst[8], lst[0], lst[1], lst[2], lst[3], lst[4], lst[5], lst[6], lst[7]))
-				
+					f.flush()
+					
 				f.close()
 
 
