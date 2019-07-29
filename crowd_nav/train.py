@@ -181,7 +181,7 @@ def main(raw_args=None):
         logging.info('Experience set size: %d/%d', len(memory), memory.capacity)
     episode = 0
     while episode < train_episodes:
-        print("progress : {} / {}".format(str(episode), str(train_episodes)))
+        print("progress : {} / {}...".format(str(episode), str(train_episodes)))
         if args.resume:
             epsilon = epsilon_end
         else:
