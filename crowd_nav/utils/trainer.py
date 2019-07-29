@@ -69,3 +69,24 @@ class Trainer(object):
         logging.debug('Average loss : %.2E', average_loss)
 
         return average_loss
+
+    def eval(self, num_batches):
+
+        if self.optimizer is None:
+            raise ValueError('Learning rate is not set!')
+        if self.data_loader is None:
+            self.data_loader = DataLoader(self.memory, self.batch_size, shuffle=True)
+        losses = 0
+        for _ in range(num_batches):
+            inputs, values = next(iter(self.data_loader))
+            inputs = Variable(inputs)
+            values = Variable(values)
+
+            outputs = self.model(inputs)
+            loss = self.criterion(outputs, values)
+            losses += loss.data.item()
+
+        average_loss = losses / num_batches
+
+        return average_loss
+

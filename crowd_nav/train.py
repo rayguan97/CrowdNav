@@ -7,6 +7,7 @@ import shutil
 import torch
 import gym
 import git
+import time
 from crowd_sim.envs.utils.robot import Robot
 from crowd_nav.utils.trainer import Trainer
 from crowd_nav.utils.memory import ReplayMemory
@@ -130,6 +131,11 @@ def main(raw_args=None):
     trainer = Trainer(model, memory, device, batch_size)
     explorer = Explorer(env, robot, device, memory, policy.gamma, target_policy=policy)
 
+
+    # training start
+    start_time = time.time()
+    print('training...')
+
     # imitation learning
     print('imitation learning...')
     if args.resume:
@@ -200,10 +206,16 @@ def main(raw_args=None):
         if episode != 0 and episode % checkpoint_interval == 0:
             torch.save(model.state_dict(), rl_weight_file)
 
+    end_time = time.time()
+    print('training finished, total time: {:.2f}'.format(end_time - start_time))
+
     # final test
     print('testing...')
-    return list(explorer.run_k_episodes(env.case_size['test'], 'test', episode=episode)) + [args.time_step]
+    ave_loss = trainer.eval(train_batches)
+    ret = list(explorer.run_k_episodes(env.case_size['test'], 'test', episode=episode)) + [ave_loss, end_time - start_time, args.time_step]
+    print('testing finished')
 
+    return rets
 
 if __name__ == '__main__':
     main()
