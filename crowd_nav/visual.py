@@ -20,7 +20,7 @@ def visualize(data_dir, figure_dir, file_name='visualization.txt'):
 		line = f.readline()
 
 		while line:
-			data_points = [ x.strip() for x in line.split(',') ]
+			data_points = [ float(x.strip()) for x in line.split(',') ]
 			for i, item in enumerate(items):
 				data[item].append(data_points[i])
 			line = f.readline()
