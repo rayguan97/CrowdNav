@@ -29,10 +29,11 @@ if __name__ == '__main__':
 	parser.add_argument('--vis_txt_dir', default='visualization.txt', type=str)
 	parser.add_argument('--muti', default=False, action='store_true')
 	parser.add_argument('--visual_only', '-v', default=False, action='store_true')
-
+	parser.add_argument('--append', '-a', default=False, action='store_true')
 	args = parser.parse_args()
 
 	args.output_folder = os.path.join(args.output_dir, args.output_folder+'{:.2f}')
+	args.mode = 'a+' if args.append else 'w+'
 
 	steps = np.arange(0.1, 1, 0.05)
 	# steps = [0.1, 0.2, 0.3]
@@ -52,8 +53,9 @@ if __name__ == '__main__':
 			cmds = list(map(mkcmd, steps, repeat(args.output_folder)))
 			result = p.map(trainMain, cmds)
 
-			with open(os.path.join(args.output_dir, args.vis_txt_dir), 'w+') as f:
-				f.write(", ".join(names) + "\n")
+			with open(os.path.join(args.output_dir, args.vis_txt_dir), args.mode) as f:
+				if not args.append:
+					f.write(", ".join(names) + "\n")
 				for lst in result:
 					f.write("{:.2}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.2f}\n".format(lst[8], lst[0], lst[1], lst[2], lst[3], lst[4], lst[5], lst[6], lst[7]))
 
@@ -62,8 +64,9 @@ if __name__ == '__main__':
 		else:
 			result = []
 
-			with open(os.path.join(args.output_dir, args.vis_txt_dir), 'w+') as f:
-				f.write(", ".join(names) + "\n")
+			with open(os.path.join(args.output_dir, args.vis_txt_dir), args.mode) as f:
+				if not args.append:
+					f.write(", ".join(names) + "\n")
 
 				for step in steps:
 					print('Running time_step = {}'.format(step))
