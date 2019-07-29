@@ -181,7 +181,7 @@ def main(raw_args=None):
         logging.info('Experience set size: %d/%d', len(memory), memory.capacity)
     episode = 0
     while episode < train_episodes:
-        print("progress : {} / {}".format(str(episode), str(train_episodes)))
+        print("progress : {} / {}...".format(str(episode), str(train_episodes)))
         if args.resume:
             epsilon = epsilon_end
         else:
@@ -193,15 +193,20 @@ def main(raw_args=None):
 
         # evaluate the model
         if episode % evaluation_interval == 0:
-            explorer.run_k_episodes(env.case_size['val'], 'val', episode=episode)
+        	print("running {} epochs for validation...".format(env.case_size['val']))
+        	explorer.run_k_episodes(env.case_size['val'], 'val', episode=episode)
+
 
         # sample k episodes into memory and optimize over the generated memory
+        print("running {} epochs for training...".format(sample_episodes))
         explorer.run_k_episodes(sample_episodes, 'train', update_memory=True, episode=episode)
+        print("training the value function with {} batches...".format(train_batches))
         trainer.optimize_batch(train_batches)
         episode += 1
 
         if episode % target_update_interval == 0:
-            explorer.update_target_model(model)
+        	print("updating the model...")
+        	explorer.update_target_model(model)
 
         if episode != 0 and episode % checkpoint_interval == 0:
             torch.save(model.state_dict(), rl_weight_file)

@@ -32,7 +32,9 @@ class Explorer(object):
         cumulative_rewards = []
         collision_cases = []
         timeout_cases = []
+        print("[ EXPLORER ] start {} episodes in phase {}...".format(k, phase))
         for i in range(k):
+            print("[ EXPLORER ] progress: {} / {}...".format(i, k))
             ob = self.env.reset(phase)
             done = False
             states = []
@@ -91,6 +93,8 @@ class Explorer(object):
         if print_failure:
             logging.info('Collision cases: ' + ' '.join([str(x) for x in collision_cases]))
             logging.info('Timeout cases: ' + ' '.join([str(x) for x in timeout_cases]))
+
+        print("[ EXPLORER ] progress: DONE")
 
         if phase in ['val', 'test']:
             return success_rate, collision_rate, avg_nav_time, total_reward, freq_danger, ave_min_dist

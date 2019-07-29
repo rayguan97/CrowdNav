@@ -28,8 +28,11 @@ class Trainer(object):
         if self.data_loader is None:
             self.data_loader = DataLoader(self.memory, self.batch_size, shuffle=True)
         average_epoch_loss = 0
+        print("[ TRAINER ] start with optimize_epoch...")
         for epoch in range(num_epochs):
             epoch_loss = 0
+            print("[ TRAINER ] progress: {} / {} epochs",format(epoch, num_epochs))
+
             for data in self.data_loader:
                 inputs, values = data
                 inputs = Variable(inputs)
@@ -44,8 +47,7 @@ class Trainer(object):
 
             average_epoch_loss = epoch_loss / len(self.memory)
             logging.debug('Average loss in epoch %d: %.2E', epoch, average_epoch_loss)
-
-        return average_epoch_loss
+        print("[ TRAINER ] progress: DONE")
 
     def optimize_batch(self, num_batches):
         if self.optimizer is None:
@@ -53,7 +55,10 @@ class Trainer(object):
         if self.data_loader is None:
             self.data_loader = DataLoader(self.memory, self.batch_size, shuffle=True)
         losses = 0
-        for _ in range(num_batches):
+        print("[ TRAINER ] start with optimize_epoch...")
+        for i in range(num_batches):
+            print("[ TRAINER ] progress: {} / {} batches",format(i, num_batches))
+
             inputs, values = next(iter(self.data_loader))
             inputs = Variable(inputs)
             values = Variable(values)
@@ -67,6 +72,7 @@ class Trainer(object):
 
         average_loss = losses / num_batches
         logging.debug('Average loss : %.2E', average_loss)
+        print("[ TRAINER ] progress: DONE")
 
         return average_loss
 
