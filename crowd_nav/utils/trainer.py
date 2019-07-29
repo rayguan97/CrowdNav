@@ -31,8 +31,7 @@ class Trainer(object):
         print("[ TRAINER ] start with optimize_epoch...")
         for epoch in range(num_epochs):
             epoch_loss = 0
-            print("[ TRAINER ] progress: {} / {} epochs",format(epoch, num_epochs))
-
+            print("[ TRAINER ] progress: {} / {} epochs".format(str(epoch), str(num_epochs)))
             for data in self.data_loader:
                 inputs, values = data
                 inputs = Variable(inputs)
@@ -57,7 +56,7 @@ class Trainer(object):
         losses = 0
         print("[ TRAINER ] start with optimize_epoch...")
         for i in range(num_batches):
-            print("[ TRAINER ] progress: {} / {} batches",format(i, num_batches))
+            print("[ TRAINER ] progress: {} / {} batches".format(str(i), str(num_batches)))
 
             inputs, values = next(iter(self.data_loader))
             inputs = Variable(inputs)

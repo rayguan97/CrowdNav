@@ -32,9 +32,9 @@ class Explorer(object):
         cumulative_rewards = []
         collision_cases = []
         timeout_cases = []
-        print("[ EXPLORER ] start {} episodes in phase {}...".format(k, phase))
+        print("[ EXPLORER ] start {} episodes in phase {}...".format(str(k), phase))
         for i in range(k):
-            print("[ EXPLORER ] progress: {} / {}...".format(i, k))
+            print("[ EXPLORER ] progress: {} / {}...".format(str(i), str(k)))
             ob = self.env.reset(phase)
             done = False
             states = []
