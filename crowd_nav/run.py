@@ -34,7 +34,7 @@ if __name__ == '__main__':
 
 	args.output_folder = os.path.join(args.output_dir, args.output_folder+'{:.2f}')
 
-	steps = np.arange(0.1, 0.8, 0.05)
+	steps = np.arange(0.1, 1, 0.05)
 	# steps = [0.1, 0.2, 0.3]
 	# steps = [0.1]
 
