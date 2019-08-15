@@ -1,0 +1,1 @@
+Time_step, Success_rate, Collision_rate, Average_navigation_time, Total_reward, Frequency_of_in_danger, Average_min_seperating_dist_in_danger, Average_loss, Training_time (seconds)
